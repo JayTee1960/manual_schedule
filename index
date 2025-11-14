@@ -1,0 +1,610 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Badminton Tournament</title>
+    <style>
+        body {
+            font-family: Arial;
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+        
+        .round-section {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #fafafa;
+            border-radius: 5px;
+        }
+        
+        .round-title {
+            font-weight: bold;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #ddd;
+            font-size: 16px;
+        }
+        
+        .courts-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        
+        .court-column {
+            background: white;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .court-header {
+            font-weight: bold;
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #333;
+            font-size: 14px;
+        }
+        
+        .game-row {
+            padding: 8px;
+            margin-bottom: 6px;
+            border: 1px solid #eee;
+            border-radius: 3px;
+            background: white;
+        }
+        
+        .score-inputs input {
+            width: 45px;
+            display: inline-block;
+            text-align: center;
+            padding: 4px;
+        }
+        
+        .action-btns {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .action-btns button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .autosave {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            background: #28a745;
+            color: white;
+            border-radius: 4px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .results-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f5e8;
+            border-radius: 5px;
+        }
+
+        .result-box {
+            background: white;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            border-left: 3px solid #28a745;
+        }
+
+        .best-performer {
+            background: #fff3cd;
+            border-left-color: #ffc107;
+        }
+
+        .worst-performer {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+        }
+
+        .sitting-out {
+            background: #f0f0f0;
+            padding: 8px;
+            margin-top: 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            color: #666;
+        }
+
+        @media print {
+            @page { size: landscape; margin: 0.3in; }
+            body { margin: 0; padding: 0; background: white; }
+            .container { padding: 8px; }
+            .header, .action-btns, .results-section, .autosave { display: none !important; }
+            .schedule-header h2 { font-size: 13px !important; margin: 0 !important; }
+            .schedule-header p { font-size: 9px !important; }
+            .teams-legend { padding: 4px !important; margin-bottom: 6px !important; }
+            .round-section { padding: 5px !important; margin-bottom: 8px !important; page-break-inside: avoid; }
+            .game-row { padding: 2px !important; font-size: 8px !important; margin-bottom: 2px !important; }
+            .court-header { font-size: 10px !important; }
+            .sitting-out { font-size: 8px !important; padding: 2px !important; }
+        }
+    </style>
+
+    <script>
+      
+      const files = {
+        
+      }
+    
+
+
+      window.fs = {}
+      window.fs.readFile = (fileName) => {
+        // return array buffer
+        return new Promise((resolve) => {
+          const content = files[fileName]
+          const decoded = atob(content)
+          const arr = new Uint8Array(decoded.length)
+          for (let i = 0; i < decoded.length; i++) {
+            arr[i] = decoded.charCodeAt(i)
+          }
+          resolve(arr)
+        })
+      }
+
+      // stub out window.user.get, window.db.get and window.db.set so that it works when you download the html doc
+      window.db = {}
+      window.db.get = (key) => {
+        // use localStorage to store the artifact
+        const value = localStorage.getItem(key)
+        if (value) {
+          return JSON.parse(value)
+        }
+
+        return null
+      }
+
+      window.db.set = (key, value) => {
+        // use localStorage to store the artifact
+        localStorage.setItem(key, JSON.stringify(value))
+      }
+
+      window.user = {}
+      window.user.get = () => {
+        return {
+          userId: "user-id-placeholder",
+          email: "placeholder@test.com"
+        }
+      }
+
+    </script>
+    </head>
+<body>
+    <div class="autosave" id="autosave">✓ Saved</div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🏸 Badminton Tournament</h1>
+            <p>November 14, 2025</p>
+        </div>
+        
+        <div id="schedule">
+            <div class="action-btns">
+                <button onclick="calculateResults()" style="background:#007bff;color:white;">🏆 Results</button>
+                <button onclick="clearScores()" style="background:#dc3545;color:white;">Clear</button>
+                <button onclick="window.print()" style="background:#28a745;color:white;">🖨️ Print</button>
+            </div>
+            <div id="scheduleContent"></div>
+            <div id="results" class="hidden results-section" style="display:none;"></div>
+        </div>
+    </div>
+
+    <script>
+        const scheduleData = {
+            title: "🏸 Badminton Tournament",
+            date: "November 14, 2025",
+            courts: ["Court 6", "Court 7", "Court 8"],
+            teams: [
+                {
+                    name: "Stingers",
+                    players: ["Sanchit", "Ron", "Kishore", "Kayleigh", "Alex L.", "Mirza"]
+                },
+                {
+                    name: "Yellow Jackets",
+                    players: ["Evan", "Maharshi", "Mikial", "Staccia", "Jimmy", "Ajay"]
+                },
+                {
+                    name: "Honey Badgers",
+                    players: ["Joey", "Ravini", "Jack", "Vikas", "Tofi", "Alex"]
+                }
+            ],
+            games: [
+                {
+                    round: 1,
+                    matches: [
+                        { court: 0, team1: 0, team2: 1, pair1: ["Sanchit", "Ron"], pair2: ["Evan", "Maharshi"] },
+                        { court: 1, team1: 0, team2: 2, pair1: ["Kishore", "Kayleigh"], pair2: ["Joey", "Ravini"] },
+                        { court: 2, team1: 1, team2: 2, pair1: ["Mikial", "Staccia"], pair2: ["Jack", "Vikas"] }
+                    ],
+                    sitting: [["Alex L.", "Mirza"], ["Jimmy", "Ajay"], ["Alex", "Tofi"]]
+                },
+                {
+                    round: 2,
+                    matches: [
+                        { court: 0, team1: 0, team2: 1, pair1: ["Sanchit", "Alex L."], pair2: ["Mikial", "Jimmy"] },
+                        { court: 1, team1: 1, team2: 2, pair1: ["Evan", "Ajay"], pair2: ["Jack", "Alex"] },
+                        { court: 2, team1: 0, team2: 2, pair1: ["Kishore", "Mirza"], pair2: ["Vikas", "Tofi"] }
+                    ],
+                    sitting: [["Kayleigh", "Ron"], ["Staccia", "Maharshi"], ["Joey", "Ravini"]]
+                },
+                {
+                    round: 3,
+                    matches: [
+                        { court: 0, team1: 0, team2: 2, pair1: ["Alex L.", "Kayleigh"], pair2: ["Joey", "Tofi"] },
+                        { court: 1, team1: 0, team2: 1, pair1: ["Ron", "Mirza"], pair2: ["Ajay", "Maharshi"] },
+                        { court: 2, team1: 1, team2: 2, pair1: ["Jimmy", "Staccia"], pair2: ["Alex", "Ravini"] }
+                    ],
+                    sitting: [["Sanchit", "Kishore"], ["Mikial", "Evan"], ["Jack", "Vikas"]]
+                },
+                {
+                    round: 4,
+                    matches: [
+                        { court: 0, team1: 0, team2: 1, pair1: ["Sanchit", "Kishore"], pair2: ["Ajay", "Mikial"] },
+                        { court: 1, team1: 1, team2: 2, pair1: ["Evan", "Jimmy"], pair2: ["Joey", "Jack"] },
+                        { court: 2, team1: 0, team2: 2, pair1: ["Ron", "Kayleigh"], pair2: ["Vikas", "Ravini"] }
+                    ],
+                    sitting: [["Alex L.", "Mirza"], ["Maharshi", "Staccia"], ["Alex", "Tofi"]]
+                },
+                {
+                    round: 5,
+                    matches: [
+                        { court: 0, team1: 1, team2: 2, pair1: ["Maharshi", "Evan"], pair2: ["Ravini", "Tofi"] },
+                        { court: 1, team1: 0, team2: 1, pair1: ["Mirza", "Kayleigh"], pair2: ["Mikial", "Jimmy"] },
+                        { court: 2, team1: 0, team2: 2, pair1: ["Kishore", "Alex L."], pair2: ["Vikas", "Alex"] }
+                    ],
+                    sitting: [["Sanchit", "Ron"], ["Ajay", "Staccia"], ["Joey", "Jack"]]
+                },
+                {
+                    round: 6,
+                    matches: [
+                        { court: 0, team1: 1, team2: 2, pair1: ["Mikial", "Ajay"], pair2: ["Jack", "Tofi"] },
+                        { court: 1, team1: 0, team2: 2, pair1: ["Kishore", "Mirza"], pair2: ["Joey", "Alex"] },
+                        { court: 2, team1: 0, team2: 1, pair1: ["Sanchit", "Alex L."], pair2: ["Staccia", "Jimmy"] }
+                    ],
+                    sitting: [["Kayleigh", "Ron"], ["Evan", "Maharshi"], ["Vikas", "Ravini"]]
+                },
+                {
+                    round: 7,
+                    matches: [
+                        { court: 0, team1: 0, team2: 1, pair1: ["Kayleigh", "Mirza"], pair2: ["Staccia", "Ajay"] },
+                        { court: 1, team1: 0, team2: 2, pair1: ["Sanchit", "Ron"], pair2: ["Vikas", "Tofi"] },
+                        { court: 2, team1: 1, team2: 2, pair1: ["Evan", "Maharshi"], pair2: ["Joey", "Ravini"] }
+                    ],
+                    sitting: [["Kishore", "Alex L."], ["Mikial", "Jimmy"], ["Jack", "Alex"]]
+                },
+                {
+                    round: 8,
+                    matches: [
+                        { court: 0, team1: 0, team2: 1, pair1: ["Sanchit", "Kishore"], pair2: ["Evan", "Mikial"] },
+                        { court: 1, team1: 1, team2: 2, pair1: ["Maharshi", "Staccia"], pair2: ["Joey", "Jack"] },
+                        { court: 2, team1: 0, team2: 2, pair1: ["Ron", "Alex L."], pair2: ["Alex", "Vikas"] }
+                    ],
+                    sitting: [["Kayleigh", "Mirza"], ["Ajay", "Jimmy"], ["Tofi", "Ravini"]]
+                }
+            ]
+        };
+        
+        let gameData = [];
+        
+        function buildSchedule() {
+            const {title, date, courts, teams, games} = scheduleData;
+            
+            let html = `<div class="schedule-header" style="text-align:center;margin-bottom:15px;padding-bottom:8px;border-bottom:1px solid #ddd;">
+                <h2 style="margin:0;">${title}</h2>
+                <p style="color:#666;margin:3px 0 0 0;">${date}</p>
+            </div>
+            
+            <div class="teams-legend" style="background:#f9f9f9;padding:10px;margin-bottom:15px;border-radius:4px;">
+                <h4 style="margin:0 0 6px 0;">Teams</h4>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:6px;">
+                    ${teams.map(t => `<div style="background:white;padding:4px;border-left:2px solid #333;border-radius:2px;font-size:11px;">
+                        <div style="font-weight:bold;">${t.name}</div>
+                        <div style="font-size:10px;color:#666;">${t.players.join(', ')}</div>
+                    </div>`).join('')}
+                </div>
+            </div>`;
+            
+            let gameNum = 1;
+            gameData = [];
+            
+            games.forEach(roundData => {
+                const roundNum = roundData.round;
+                
+                html += `<div class="round-section">
+                    <div class="round-title">Round ${roundNum}</div>
+                    <div class="courts-row">`;
+                
+                roundData.matches.forEach(match => {
+                    const court = courts[match.court];
+                    const team1 = teams[match.team1];
+                    const team2 = teams[match.team2];
+                    const pair1 = match.pair1;
+                    const pair2 = match.pair2;
+                    
+                    gameData.push({
+                        team1Pair: pair1,
+                        team2Pair: pair2,
+                        team1Name: team1.name,
+                        team2Name: team2.name
+                    });
+                    
+                    html += `<div class="court-column">
+                        <div class="court-header">${court}: ${team1.name} vs ${team2.name}</div>
+                        <div class="game-row">
+                            <div><strong>Game ${gameNum}:</strong></div>
+                            <div style="margin:4px 0;">${pair1[0]} & ${pair1[1]} <strong>vs</strong> ${pair2[0]} & ${pair2[1]}</div>
+                            <div class="score-inputs">
+                                Score: <input type="number" id="g${gameNum}s1" min="0" max="99" placeholder="0"> - 
+                                <input type="number" id="g${gameNum}s2" min="0"  max="99" placeholder="0">
+                            </div>
+                        </div>
+                    </div>`;
+                    
+                    gameNum++;
+                });
+                
+                html += `</div>
+                    <div class="sitting-out">
+                        <strong>Sitting:</strong> ${teams.map((t, idx) => 
+                            `${t.name}: ${roundData.sitting[idx].join(', ')}`
+                        ).join(' | ')}
+                    </div>
+                </div>`;
+            });
+            
+            document.getElementById('scheduleContent').innerHTML = html;
+            
+            setTimeout(() => {
+                for (let i = 1; i <= gameData.length; i++) {
+                    const s1 = document.getElementById(`g${i}s1`);
+                    const s2 = document.getElementById(`g${i}s2`);
+                    if (s1 && s2) {
+                        s1.oninput = saveScores;
+                        s2.oninput = saveScores;
+                    }
+                }
+                loadScores();
+            }, 100);
+        }
+        
+        function saveScores() {
+            const scores = {};
+            for (let i = 1; i <= gameData.length; i++) {
+                const s1 = document.getElementById(`g${i}s1`);
+                const s2 = document.getElementById(`g${i}s2`);
+                if (s1 && s2) {
+                    scores[i] = {s1: s1.value, s2: s2.value};
+                }
+            }
+            localStorage.setItem('badminton', JSON.stringify({scores}));
+            
+            const ind = document.getElementById('autosave');
+            ind.style.display = 'block';
+            setTimeout(() => ind.style.display = 'none', 2000);
+        }
+        
+        function loadScores() {
+            const data = localStorage.getItem('badminton');
+            if (!data) return;
+            try {
+                const {scores} = JSON.parse(data);
+                for (let i = 1; i <= gameData.length; i++) {
+                    const s1 = document.getElementById(`g${i}s1`);
+                    const s2 = document.getElementById(`g${i}s2`);
+                    if (s1 && s2 && scores[i]) {
+                        s1.value = scores[i].s1 || '';
+                        s2.value = scores[i].s2 || '';
+                    }
+                }
+            } catch(e) {}
+        }
+        
+        function clearScores() {
+            if (confirm('Clear all scores?')) {
+                for (let i = 1; i <= gameData.length; i++) {
+                    const s1 = document.getElementById(`g${i}s1`);
+                    const s2 = document.getElementById(`g${i}s2`);
+                    if (s1 && s2) {
+                        s1.value = '';
+                        s2.value = '';
+                    }
+                }
+                localStorage.removeItem('badminton');
+                document.getElementById('results').style.display = 'none';
+            }
+        }
+        
+        function calculateResults() {
+            const teamStats = {};
+            const pairStats = {};
+            const playerStats = {};
+            
+            scheduleData.teams.forEach(t => {
+                teamStats[t.name] = {wins:0, losses:0, pf:0, pa:0};
+                t.players.forEach(p => {
+                    playerStats[p] = {games:0, wins:0, losses:0, team: t.name};
+                });
+            });
+            
+            let count = 0;
+            for (let i = 1; i <= gameData.length; i++) {
+                const s1 = document.getElementById(`g${i}s1`);
+                const s2 = document.getElementById(`g${i}s2`);
+                if (s1?.value && s2?.value) {
+                    count++;
+                    const sc1 = parseInt(s1.value);
+                    const sc2 = parseInt(s2.value);
+                    const g = gameData[i-1];
+                    
+                    if (sc1 > sc2) {
+                        teamStats[g.team1Name].wins++;
+                        teamStats[g.team2Name].losses++;
+                    } else {
+                        teamStats[g.team2Name].wins++;
+                        teamStats[g.team1Name].losses++;
+                    }
+                    
+                    teamStats[g.team1Name].pf += sc1;
+                    teamStats[g.team1Name].pa += sc2;
+                    teamStats[g.team2Name].pf += sc2;
+                    teamStats[g.team2Name].pa += sc1;
+                    
+                    const pair1 = `${g.team1Pair[0]} & ${g.team1Pair[1]}`;
+                    const pair2 = `${g.team2Pair[0]} & ${g.team2Pair[1]}`;
+                    
+                    if (!pairStats[pair1]) pairStats[pair1] = {wins:0, losses:0, pf:0, pa:0, team: g.team1Name};
+                    if (!pairStats[pair2]) pairStats[pair2] = {wins:0, losses:0, pf:0, pa:0, team: g.team2Name};
+                    
+                    g.team1Pair.forEach(p => {
+                        playerStats[p].games++;
+                        if (sc1 > sc2) playerStats[p].wins++;
+                        else playerStats[p].losses++;
+                    });
+                    g.team2Pair.forEach(p => {
+                        playerStats[p].games++;
+                        if (sc2 > sc1) playerStats[p].wins++;
+                        else playerStats[p].losses++;
+                    });
+                    
+                    if (sc1 > sc2) {
+                        pairStats[pair1].wins++;
+                        pairStats[pair1].pf += sc1;
+                        pairStats[pair1].pa += sc2;
+                        pairStats[pair2].losses++;
+                        pairStats[pair2].pf += sc2;
+                        pairStats[pair2].pa += sc1;
+                    } else {
+                        pairStats[pair2].wins++;
+                        pairStats[pair2].pf += sc2;
+                        pairStats[pair2].pa += sc1;
+                        pairStats[pair1].losses++;
+                        pairStats[pair1].pf += sc1;
+                        pairStats[pair1].pa += sc2;
+                    }
+                }
+            }
+            
+            if (count === 0) {
+                alert('Enter scores first!');
+                return;
+            }
+            
+            const results = Object.entries(teamStats)
+                .map(([name, s]) => ({name, ...s, diff: s.pf - s.pa}))
+                .sort((a,b) => b.wins - a.wins || b.diff - a.diff);
+            
+            const pairResults = Object.entries(pairStats)
+                .map(([pair, s]) => ({pair, ...s, diff: s.pf - s.pa}))
+                .sort((a,b) => b.wins - a.wins || b.diff - a.diff);
+            
+            const playerResults = Object.entries(playerStats)
+                .map(([name, s]) => ({name, ...s}))
+                .sort((a,b) => b.games - a.games || b.wins - a.wins);
+            
+            const bestPairs = pairResults.slice(0, 3);
+            const worstPairs = pairResults.slice(-3).reverse();
+            const bestDefense = pairResults.filter(p => p.pa > 0).sort((a,b) => a.pa - b.pa).slice(0, 3);
+            
+            let html = `<h3>🏆 Results</h3>
+                
+                <div class="result-box">
+                    <strong>📊 Games:</strong> ${count} of ${gameData.length}
+                </div>
+                
+                <div class="result-box">
+                    <strong>🏆 Leader:</strong> ${results[0].name} (${results[0].wins}W-${results[0].losses}L)
+                </div>
+                
+                <div class="result-box">
+                    <strong>📊 Standings:</strong>
+                    <ol style="margin:8px 0 0 20px;">
+                        ${results.map(r => 
+                            `<li>${r.name}: ${r.wins}W-${r.losses}L, ${r.diff>0?'+':''}${r.diff} diff</li>`
+                        ).join('')}
+                    </ol>
+                </div>
+                
+                <div class="result-box">
+                    <strong>👤 Player Game Count:</strong>
+                    <div style="margin:8px 0 0 0;font-size:11px;">
+                        ${playerResults.map(p => 
+                            `<div style="padding:2px 0;">${p.name} (${p.team}): ${p.games} games (${p.wins}W-${p.losses}L)</div>`
+                        ).join('')}
+                    </div>
+                </div>
+                
+                <div class="result-box best-performer">
+                    <strong>⭐ Best Pairs:</strong>
+                    <ol style="margin:8px 0 0 20px;">
+                        ${bestPairs.map(p => 
+                            `<li>${p.pair} (${p.team}): ${p.wins}W-${p.losses}L</li>`
+                        ).join('')}
+                    </ol>
+                </div>
+                
+                <div class="result-box worst-performer">
+                    <strong>⚠️ Struggling Pairs:</strong>
+                    <ol style="margin:8px 0 0 20px;">
+                        ${worstPairs.map(p => 
+                            `<li>${p.pair} (${p.team}): ${p.wins}W-${p.losses}L</li>`
+                        ).join('')}
+                    </ol>
+                </div>
+                
+                <div class="result-box">
+                    <strong>🎯 Best Defense:</strong>
+                    <ol style="margin:8px 0 0 20px;">
+                        ${bestDefense.map(p => 
+                            `<li>${p.pair} (${p.team}): ${p.pa} pts against</li>`
+                        ).join('')}
+                    </ol>
+                </div>`;
+            
+            document.getElementById('results').innerHTML = html;
+            document.getElementById('results').style.display = 'block';
+        }
+        
+        // Build schedule on load
+        buildSchedule();
+        
+        // Auto-save every 10 seconds
+        setInterval(saveScores, 10000);
+        window.onbeforeunload = saveScores;
+    </script>
+</body>
+</html>
+
+
