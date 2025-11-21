@@ -1,155 +1,504 @@
-
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Badminton Tournament</title>
+    <title>Badminton Tournament Generator</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+        
         body {
-            font-family: Arial;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             max-width: 1400px;
-            margin: 20px auto;
+            margin: 0 auto;
             padding: 20px;
-            background: #f5f5f5;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
         }
         
         .container {
             background: white;
             padding: 30px;
-            border-radius: 8px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
         }
         
         .header {
             text-align: center;
             margin-bottom: 30px;
-            padding-bottom: 15px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .header h1 {
+            margin: 0;
+            color: #333;
+            font-size: 32px;
+        }
+        
+        .header p {
+            margin: 10px 0 0 0;
+            color: #666;
+            font-size: 16px;
+        }
+        
+        .form-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .form-section h3 {
+            margin: 0 0 15px 0;
+            color: #333;
+            font-size: 18px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+        
+        input[type="text"],
+        input[type="date"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus,
+        select:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .teams-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+        
+        .team-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            transition: border-color 0.3s;
+        }
+        
+        .team-card:hover {
+            border-color: #667eea;
+        }
+        
+        .team-card h4 {
+            margin: 0 0 12px 0;
+            color: #667eea;
+            font-size: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .player-input {
+            margin-bottom: 8px;
+        }
+        
+        .player-input input {
+            font-size: 13px;
+            padding: 8px 10px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            width: 100%;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .btn-info:hover {
+            background: #138496;
+        }
+        
+        .schedule-output {
+            display: none;
+        }
+        
+        .action-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .schedule-wrapper {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #667eea;
+        }
+        
+        .schedule-header {
+            text-align: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
             border-bottom: 2px solid #333;
         }
         
+        .schedule-header h2 {
+            margin: 0;
+            font-size: 20px;
+            color: #333;
+        }
+        
+        .schedule-header p {
+            margin: 5px 0 0 0;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .teams-legend {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .teams-legend h4 {
+            margin: 0 0 8px 0;
+            color: #333;
+            font-size: 14px;
+        }
+        
+        .team-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 8px;
+        }
+        
+        .team-item {
+            background: white;
+            padding: 6px 10px;
+            border-radius: 6px;
+            border-left: 3px solid #667eea;
+        }
+        
+        .team-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 3px;
+            font-size: 13px;
+        }
+        
+        .players {
+            font-size: 11px;
+            color: #666;
+        }
+        
         .round-section {
-            margin-bottom: 25px;
-            padding: 15px;
-            background: #fafafa;
-            border-radius: 5px;
+            margin-bottom: 12px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            page-break-inside: avoid;
         }
         
         .round-title {
             font-weight: bold;
-            margin-bottom: 12px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #ddd;
-            font-size: 16px;
+            font-size: 13px;
+            margin-bottom: 8px;
+            color: #667eea;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #ddd;
         }
         
-        .courts-row {
+        .courts-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 15px;
+            gap: 10px;
         }
         
-        .court-column {
+        .court-card {
             background: white;
-            padding: 15px;
+            padding: 8px;
+            border-radius: 6px;
             border: 1px solid #ddd;
-            border-radius: 4px;
         }
         
         .court-header {
             font-weight: bold;
-            margin-bottom: 10px;
-            padding-bottom: 6px;
-            border-bottom: 2px solid #333;
-            font-size: 14px;
+            margin-bottom: 6px;
+            padding-bottom: 4px;
+            border-bottom: 2px solid #667eea;
+            color: #333;
+            font-size: 11px;
         }
         
         .game-row {
-            padding: 8px;
+            padding: 6px;
+            margin-bottom: 5px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            background: #fafafa;
+        }
+        
+        .game-number {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 4px;
+            font-size: 10px;
+        }
+        
+        .matchup {
             margin-bottom: 6px;
-            border: 1px solid #eee;
-            border-radius: 3px;
-            background: white;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .vs {
+            font-weight: bold;
+            color: #666;
+            margin: 0 6px;
+        }
+        
+        .score-inputs {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
         }
         
         .score-inputs input {
             width: 45px;
-            display: inline-block;
-            text-align: center;
             padding: 4px;
-        }
-        
-        .action-btns {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
-        
-        .action-btns button {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        
-        .autosave {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 10px 15px;
-            background: #28a745;
-            color: white;
-            border-radius: 4px;
-            display: none;
-            z-index: 1000;
-        }
-
-        .results-section {
-            margin-top: 20px;
-            padding: 15px;
-            background: #e8f5e8;
-            border-radius: 5px;
-        }
-
-        .result-box {
-            background: white;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 4px;
-            border-left: 3px solid #28a745;
-        }
-
-        .best-performer {
-            background: #fff3cd;
-            border-left-color: #ffc107;
-        }
-
-        .worst-performer {
-            background: #f8d7da;
-            border-left-color: #dc3545;
-        }
-
-        .sitting-out {
-            background: #f0f0f0;
-            padding: 8px;
-            margin-top: 10px;
+            text-align: center;
+            border: 2px solid #ddd;
             border-radius: 4px;
             font-size: 11px;
-            color: #666;
         }
-
+        
+        .score-inputs input:focus {
+            border-color: #667eea;
+        }
+        
+        .results-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: #d4edda;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+            display: none;
+        }
+        
+        .results-section h3 {
+            margin: 0 0 15px 0;
+            color: #155724;
+        }
+        
+        .result-item {
+            background: white;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            border-left: 3px solid #28a745;
+        }
+        
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+        
+        .info-box strong {
+            color: #1976D2;
+        }
+        
         @media print {
-            @page { size: landscape; margin: 0.3in; }
-            body { margin: 0; padding: 0; background: white; }
-            .container { padding: 8px; }
-            .header, .action-btns, .results-section, .autosave { display: none !important; }
-            .schedule-header h2 { font-size: 13px !important; margin: 0 !important; }
-            .schedule-header p { font-size: 9px !important; }
-            .teams-legend { padding: 4px !important; margin-bottom: 6px !important; }
-            .round-section { padding: 5px !important; margin-bottom: 8px !important; page-break-inside: avoid; }
-            .game-row { padding: 2px !important; font-size: 8px !important; margin-bottom: 2px !important; }
-            .court-header { font-size: 10px !important; }
-            .sitting-out { font-size: 8px !important; padding: 2px !important; }
+            body {
+                background: white;
+                padding: 0;
+                margin: 0;
+            }
+            
+            .container {
+                box-shadow: none;
+                padding: 5px;
+                max-width: 100%;
+            }
+            
+            .action-bar,
+            .results-section,
+            .header {
+                display: none !important;
+            }
+            
+            .schedule-wrapper {
+                border: none;
+                padding: 0;
+            }
+            
+            .schedule-header {
+                display: none !important;
+            }
+            
+            .teams-legend {
+                padding: 5px;
+                margin-bottom: 8px;
+                font-size: 10px;
+            }
+            
+            .teams-legend h4 {
+                font-size: 11px;
+                margin-bottom: 5px;
+            }
+            
+            .team-list {
+                gap: 5px;
+            }
+            
+            .team-item {
+                padding: 4px 6px;
+            }
+            
+            .team-name {
+                font-size: 11px;
+            }
+            
+            .players {
+                font-size: 9px;
+            }
+            
+            .round-section {
+                margin-bottom: 8px;
+                padding: 6px;
+                page-break-inside: avoid;
+            }
+            
+            .round-title {
+                font-size: 11px;
+                margin-bottom: 5px;
+                padding-bottom: 3px;
+            }
+            
+            .courts-grid {
+                gap: 6px;
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .court-card {
+                padding: 5px;
+            }
+            
+            .court-header {
+                font-size: 9px;
+                margin-bottom: 4px;
+                padding-bottom: 2px;
+            }
+            
+            .game-row {
+                padding: 4px;
+                margin-bottom: 3px;
+            }
+            
+            .game-number {
+                font-size: 8px;
+                margin-bottom: 2px;
+            }
+            
+            .matchup {
+                font-size: 12px;
+                margin-bottom: 4px;
+                line-height: 1.2;
+            }
+            
+            .score-inputs {
+                font-size: 9px;
+                gap: 4px;
+            }
+            
+            .score-inputs input {
+                width: 35px;
+                padding: 2px;
+                font-size: 9px;
+            }
+            
+            .round-section:nth-child(7) {
+                page-break-before: always;
+            }
         }
     </style>
 
@@ -203,247 +552,520 @@
     </script>
     </head>
 <body>
-    <div class="autosave" id="autosave">✓ Saved</div>
-    
     <div class="container">
         <div class="header">
-            <h1>🏸 Badminton Tournament</h1>
-            <p>November 14, 2025</p>
+            <h1>🏸 Badminton Tournament Generator</h1>
+            <p>Create optimized tournament schedules with fair play distribution</p>
         </div>
         
-        <div id="schedule">
-            <div class="action-btns">
-                <button onclick="calculateResults()" style="background:#007bff;color:white;">🏆 Results</button>
-                <button onclick="clearScores()" style="background:#dc3545;color:white;">Clear</button>
-                <button onclick="window.print()" style="background:#28a745;color:white;">🖨️ Print</button>
+        <div id="form-section">
+            <div class="form-section">
+                <h3>📅 Tournament Configuration</h3>
+                <div class="config-grid">
+                    <div class="form-group">
+                        <label for="tournament-date">Tournament Date:</label>
+                        <input type="date" id="tournament-date">
+                    </div>
+                    <div class="form-group">
+                        <label for="num-teams">Number of Teams:</label>
+                        <select id="num-teams">
+                            <option value="">Select...</option>
+                            <option value="3">3 Teams</option>
+                            <option value="4">4 Teams</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="players-per-team">Players per Team:</label>
+                        <select id="players-per-team">
+                            <option value="">Select...</option>
+                            <option value="3">3 Players</option>
+                            <option value="6">6 Players</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="num-courts">Number of Courts:</label>
+                        <input type="number" id="num-courts" min="1" max="10" placeholder="e.g., 2">
+                    </div>
+                </div>
+                
+                <div class="info-box" id="config-info" style="display: none;">
+                    <strong>Configuration:</strong> <span id="config-text"></span>
+                </div>
             </div>
-            <div id="scheduleContent"></div>
-            <div id="results" class="hidden results-section" style="display:none;"></div>
+            
+            <div class="form-section" id="courts-section" style="display: none;">
+                <h3>🏟️ Court Names</h3>
+                <div id="courts-container"></div>
+            </div>
+            
+            <div class="form-section" id="teams-section" style="display: none;">
+                <h3>👥 Team & Player Information</h3>
+                <div id="teams-container" class="teams-container"></div>
+            </div>
+            
+            <button class="btn btn-primary" id="generate-btn" style="display: none;">
+                🎯 Generate Tournament Schedule
+            </button>
+        </div>
+        
+        <div id="schedule-output" class="schedule-output">
+            <div class="action-bar">
+                <button class="btn btn-secondary" id="back-btn">← Back</button>
+                <button class="btn btn-info" id="calculate-btn">🏆 Calculate Results</button>
+                <button class="btn btn-danger" id="clear-btn">🗑️ Clear Scores</button>
+                <button class="btn btn-success" id="download-btn">📥 Download</button>
+            </div>
+            
+            <div class="schedule-wrapper">
+                <div id="generated-schedule"></div>
+            </div>
+            
+            <div id="results-section" class="results-section">
+                <h3>🏆 Tournament Results</h3>
+                <div id="results-content"></div>
+            </div>
         </div>
     </div>
 
     <script>
-        const scheduleData = {
-            title: "🏸 Badminton Tournament",
-            date: "November 14, 2025",
-            courts: ["Court 6", "Court 7", "Court 8"],
-            teams: [
-                {
-                    name: "Stingers",
-                    players: ["Sanchit", "Ron", "Kishore", "Kayleigh", "Alex L.", "Mirza"]
-                },
-                {
-                    name: "Yellow Jackets",
-                    players: ["Evan", "Maharshi", "Mikial", "Staccia", "Jimmy", "Ajay"]
-                },
-                {
-                    name: "Honey Badgers",
-                    players: ["Joey", "Ravini", "Jack", "Vikas", "Tofi", "Alex"]
-                }
-            ],
-            games: [
-                {
-                    round: 1,
-                    matches: [
-                        { court: 0, team1: 0, team2: 1, pair1: ["Sanchit", "Ron"], pair2: ["Evan", "Maharshi"] },
-                        { court: 1, team1: 0, team2: 2, pair1: ["Kishore", "Kayleigh"], pair2: ["Joey", "Ravini"] },
-                        { court: 2, team1: 1, team2: 2, pair1: ["Mikial", "Staccia"], pair2: ["Jack", "Vikas"] }
-                    ],
-                    sitting: [["Alex L.", "Mirza"], ["Jimmy", "Ajay"], ["Alex", "Tofi"]]
-                },
-                {
-                    round: 2,
-                    matches: [
-                        { court: 0, team1: 0, team2: 1, pair1: ["Sanchit", "Alex L."], pair2: ["Mikial", "Jimmy"] },
-                        { court: 1, team1: 1, team2: 2, pair1: ["Evan", "Ajay"], pair2: ["Jack", "Alex"] },
-                        { court: 2, team1: 0, team2: 2, pair1: ["Kishore", "Mirza"], pair2: ["Vikas", "Tofi"] }
-                    ],
-                    sitting: [["Kayleigh", "Ron"], ["Staccia", "Maharshi"], ["Joey", "Ravini"]]
-                },
-                {
-                    round: 3,
-                    matches: [
-                        { court: 0, team1: 0, team2: 2, pair1: ["Alex L.", "Kayleigh"], pair2: ["Joey", "Tofi"] },
-                        { court: 1, team1: 0, team2: 1, pair1: ["Ron", "Mirza"], pair2: ["Ajay", "Maharshi"] },
-                        { court: 2, team1: 1, team2: 2, pair1: ["Jimmy", "Staccia"], pair2: ["Alex", "Ravini"] }
-                    ],
-                    sitting: [["Sanchit", "Kishore"], ["Mikial", "Evan"], ["Jack", "Vikas"]]
-                },
-                {
-                    round: 4,
-                    matches: [
-                        { court: 0, team1: 0, team2: 1, pair1: ["Sanchit", "Kishore"], pair2: ["Ajay", "Mikial"] },
-                        { court: 1, team1: 1, team2: 2, pair1: ["Evan", "Jimmy"], pair2: ["Joey", "Jack"] },
-                        { court: 2, team1: 0, team2: 2, pair1: ["Ron", "Kayleigh"], pair2: ["Vikas", "Ravini"] }
-                    ],
-                    sitting: [["Alex L.", "Mirza"], ["Maharshi", "Staccia"], ["Alex", "Tofi"]]
-                },
-                {
-                    round: 5,
-                    matches: [
-                        { court: 0, team1: 1, team2: 2, pair1: ["Maharshi", "Evan"], pair2: ["Ravini", "Tofi"] },
-                        { court: 1, team1: 0, team2: 1, pair1: ["Mirza", "Kayleigh"], pair2: ["Mikial", "Jimmy"] },
-                        { court: 2, team1: 0, team2: 2, pair1: ["Kishore", "Alex L."], pair2: ["Vikas", "Alex"] }
-                    ],
-                    sitting: [["Sanchit", "Ron"], ["Ajay", "Staccia"], ["Joey", "Jack"]]
-                },
-                {
-                    round: 6,
-                    matches: [
-                        { court: 0, team1: 1, team2: 2, pair1: ["Mikial", "Ajay"], pair2: ["Jack", "Tofi"] },
-                        { court: 1, team1: 0, team2: 2, pair1: ["Kishore", "Mirza"], pair2: ["Joey", "Alex"] },
-                        { court: 2, team1: 0, team2: 1, pair1: ["Sanchit", "Alex L."], pair2: ["Staccia", "Jimmy"] }
-                    ],
-                    sitting: [["Kayleigh", "Ron"], ["Evan", "Maharshi"], ["Vikas", "Ravini"]]
-                },
-                {
-                    round: 7,
-                    matches: [
-                        { court: 0, team1: 0, team2: 1, pair1: ["Kayleigh", "Mirza"], pair2: ["Staccia", "Ajay"] },
-                        { court: 1, team1: 0, team2: 2, pair1: ["Sanchit", "Ron"], pair2: ["Vikas", "Tofi"] },
-                        { court: 2, team1: 1, team2: 2, pair1: ["Evan", "Maharshi"], pair2: ["Joey", "Ravini"] }
-                    ],
-                    sitting: [["Kishore", "Alex L."], ["Mikial", "Jimmy"], ["Jack", "Alex"]]
-                },
-                {
-                    round: 8,
-                    matches: [
-                        { court: 0, team1: 0, team2: 1, pair1: ["Sanchit", "Kishore"], pair2: ["Evan", "Mikial"] },
-                        { court: 1, team1: 1, team2: 2, pair1: ["Maharshi", "Staccia"], pair2: ["Joey", "Jack"] },
-                        { court: 2, team1: 0, team2: 2, pair1: ["Ron", "Alex L."], pair2: ["Alex", "Vikas"] }
-                    ],
-                    sitting: [["Kayleigh", "Mirza"], ["Ajay", "Jimmy"], ["Tofi", "Ravini"]]
-                }
-            ]
-        };
+        document.getElementById('tournament-date').value = new Date().toISOString().split('T')[0];
         
+        let currentConfig = null;
         let gameData = [];
         
-        function buildSchedule() {
-            const {title, date, courts, teams, games} = scheduleData;
+        document.getElementById('num-teams').addEventListener('change', updateConfiguration);
+        document.getElementById('players-per-team').addEventListener('change', updateConfiguration);
+        document.getElementById('num-courts').addEventListener('input', updateConfiguration);
+        document.getElementById('generate-btn').addEventListener('click', generateSchedule);
+        
+        document.getElementById('back-btn').addEventListener('click', () => {
+            if (confirm('Going back will lose all entered data. Continue?')) {
+                showForm();
+            }
+        });
+        document.getElementById('calculate-btn').addEventListener('click', calculateResults);
+        document.getElementById('clear-btn').addEventListener('click', clearScores);
+        document.getElementById('download-btn').addEventListener('click', downloadSchedule);
+        
+        function updateConfiguration() {
+            const numTeams = parseInt(document.getElementById('num-teams').value);
+            const playersPerTeam = parseInt(document.getElementById('players-per-team').value);
+            const numCourts = parseInt(document.getElementById('num-courts').value);
             
-            let html = `<div class="schedule-header" style="text-align:center;margin-bottom:15px;padding-bottom:8px;border-bottom:1px solid #ddd;">
-                <h2 style="margin:0;">${title}</h2>
-                <p style="color:#666;margin:3px 0 0 0;">${date}</p>
-            </div>
+            if (!numTeams || !playersPerTeam) {
+                document.getElementById('config-info').style.display = 'none';
+                document.getElementById('courts-section').style.display = 'none';
+                document.getElementById('teams-section').style.display = 'none';
+                document.getElementById('generate-btn').style.display = 'none';
+                return;
+            }
             
-            <div class="teams-legend" style="background:#f9f9f9;padding:10px;margin-bottom:15px;border-radius:4px;">
-                <h4 style="margin:0 0 6px 0;">Teams</h4>
-                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:6px;">
-                    ${teams.map(t => `<div style="background:white;padding:4px;border-left:2px solid #333;border-radius:2px;font-size:11px;">
-                        <div style="font-weight:bold;">${t.name}</div>
-                        <div style="font-size:10px;color:#666;">${t.players.join(', ')}</div>
-                    </div>`).join('')}
-                </div>
-            </div>`;
+            const totalPlayers = numTeams * playersPerTeam;
+            let maxGames = 0;
+            let gamesPerPlayer = 0;
             
-            let gameNum = 1;
-            gameData = [];
+            if (totalPlayers === 12 && numTeams === 4 && playersPerTeam === 3) {
+                maxGames = 18;
+                gamesPerPlayer = 6;
+            } else if (totalPlayers === 18 && numTeams === 3 && playersPerTeam === 6) {
+                maxGames = 27;
+                gamesPerPlayer = 6;
+            }
             
-            games.forEach(roundData => {
-                const roundNum = roundData.round;
-                
-                html += `<div class="round-section">
-                    <div class="round-title">Round ${roundNum}</div>
-                    <div class="courts-row">`;
-                
-                roundData.matches.forEach(match => {
-                    const court = courts[match.court];
-                    const team1 = teams[match.team1];
-                    const team2 = teams[match.team2];
-                    const pair1 = match.pair1;
-                    const pair2 = match.pair2;
-                    
-                    gameData.push({
-                        team1Pair: pair1,
-                        team2Pair: pair2,
-                        team1Name: team1.name,
-                        team2Name: team2.name
-                    });
-                    
-                    html += `<div class="court-column">
-                        <div class="court-header">${court}: ${team1.name} vs ${team2.name}</div>
-                        <div class="game-row">
-                            <div><strong>Game ${gameNum}:</strong></div>
-                            <div style="margin:4px 0;">${pair1[0]} & ${pair1[1]} <strong>vs</strong> ${pair2[0]} & ${pair2[1]}</div>
-                            <div class="score-inputs">
-                                Score: <input type="number" id="g${gameNum}s1" min="0" max="99" placeholder="0"> - 
-                                <input type="number" id="g${gameNum}s2" min="0"  max="99" placeholder="0">
-                            </div>
-                        </div>
-                    </div>`;
-                    
-                    gameNum++;
-                });
-                
-                html += `</div>
-                    <div class="sitting-out">
-                        <strong>Sitting:</strong> ${teams.map((t, idx) => 
-                            `${t.name}: ${roundData.sitting[idx].join(', ')}`
-                        ).join(' | ')}
-                    </div>
-                </div>`;
-            });
+            document.getElementById('config-info').style.display = 'block';
+            document.getElementById('config-text').textContent = 
+                `${totalPlayers} total players (${numTeams} teams × ${playersPerTeam} players) - Target: ${maxGames} games, ${gamesPerPlayer} games per player`;
             
-            document.getElementById('scheduleContent').innerHTML = html;
+            if (numCourts > 0) {
+                generateCourtInputs(numCourts);
+            }
             
-            setTimeout(() => {
-                for (let i = 1; i <= gameData.length; i++) {
-                    const s1 = document.getElementById(`g${i}s1`);
-                    const s2 = document.getElementById(`g${i}s2`);
-                    if (s1 && s2) {
-                        s1.oninput = saveScores;
-                        s2.oninput = saveScores;
-                    }
-                }
-                loadScores();
-            }, 100);
+            generateTeamInputs(numTeams, playersPerTeam);
+            
+            document.getElementById('generate-btn').style.display = 'block';
         }
         
-        function saveScores() {
-            const scores = {};
-            for (let i = 1; i <= gameData.length; i++) {
-                const s1 = document.getElementById(`g${i}s1`);
-                const s2 = document.getElementById(`g${i}s2`);
-                if (s1 && s2) {
-                    scores[i] = {s1: s1.value, s2: s2.value};
+        function generateCourtInputs(numCourts) {
+            const container = document.getElementById('courts-container');
+            container.innerHTML = '';
+            
+            const grid = document.createElement('div');
+            grid.className = 'config-grid';
+            
+            for (let i = 1; i <= numCourts; i++) {
+                const div = document.createElement('div');
+                div.className = 'form-group';
+                div.innerHTML = `
+                    <label for="court-${i}">Court ${i} Name:</label>
+                    <input type="text" id="court-${i}" placeholder="Court ${i}" value="Court ${i}">
+                `;
+                grid.appendChild(div);
+            }
+            
+            container.appendChild(grid);
+            document.getElementById('courts-section').style.display = 'block';
+        }
+        
+        function generateTeamInputs(numTeams, playersPerTeam) {
+            const container = document.getElementById('teams-container');
+            container.innerHTML = '';
+            
+            for (let t = 1; t <= numTeams; t++) {
+                const teamCard = document.createElement('div');
+                teamCard.className = 'team-card';
+                
+                let html = `
+                    <h4>Team ${t}</h4>
+                    <div class="form-group">
+                        <label>Team Name:</label>
+                        <input type="text" id="team-${t}-name" placeholder="Team ${t} Name">
+                    </div>
+                `;
+                
+                for (let p = 1; p <= playersPerTeam; p++) {
+                    html += `
+                        <div class="player-input">
+                            <label>Player ${p}:</label>
+                            <input type="text" id="team-${t}-player-${p}" placeholder="Player ${p} Name">
+                        </div>
+                    `;
+                }
+                
+                teamCard.innerHTML = html;
+                container.appendChild(teamCard);
+            }
+            
+            document.getElementById('teams-section').style.display = 'block';
+        }
+        
+        function validateInputs() {
+            const numTeams = parseInt(document.getElementById('num-teams').value);
+            const playersPerTeam = parseInt(document.getElementById('players-per-team').value);
+            const numCourts = parseInt(document.getElementById('num-courts').value);
+            const date = document.getElementById('tournament-date').value;
+            
+            if (!date) {
+                alert('Please select a tournament date');
+                return false;
+            }
+            
+            if (!numCourts || numCourts < 1) {
+                alert('Please enter number of courts');
+                return false;
+            }
+            
+            for (let i = 1; i <= numCourts; i++) {
+                const court = document.getElementById(`court-${i}`).value.trim();
+                if (!court) {
+                    alert(`Please enter name for Court ${i}`);
+                    return false;
                 }
             }
-            localStorage.setItem('badminton', JSON.stringify({scores}));
             
-            const ind = document.getElementById('autosave');
-            ind.style.display = 'block';
-            setTimeout(() => ind.style.display = 'none', 2000);
-        }
-        
-        function loadScores() {
-            const data = localStorage.getItem('badminton');
-            if (!data) return;
-            try {
-                const {scores} = JSON.parse(data);
-                for (let i = 1; i <= gameData.length; i++) {
-                    const s1 = document.getElementById(`g${i}s1`);
-                    const s2 = document.getElementById(`g${i}s2`);
-                    if (s1 && s2 && scores[i]) {
-                        s1.value = scores[i].s1 || '';
-                        s2.value = scores[i].s2 || '';
+            for (let t = 1; t <= numTeams; t++) {
+                const teamName = document.getElementById(`team-${t}-name`).value.trim();
+                if (!teamName) {
+                    alert(`Please enter name for Team ${t}`);
+                    return false;
+                }
+                
+                for (let p = 1; p <= playersPerTeam; p++) {
+                    const playerName = document.getElementById(`team-${t}-player-${p}`).value.trim();
+                    if (!playerName) {
+                        alert(`Please enter name for Team ${t}, Player ${p}`);
+                        return false;
                     }
                 }
-            } catch(e) {}
+            }
+            
+            return true;
         }
         
-        function clearScores() {
-            if (confirm('Clear all scores?')) {
-                for (let i = 1; i <= gameData.length; i++) {
-                    const s1 = document.getElementById(`g${i}s1`);
-                    const s2 = document.getElementById(`g${i}s2`);
-                    if (s1 && s2) {
-                        s1.value = '';
-                        s2.value = '';
-                    }
+        function generateSchedule() {
+            if (!validateInputs()) return;
+            
+            const numTeams = parseInt(document.getElementById('num-teams').value);
+            const playersPerTeam = parseInt(document.getElementById('players-per-team').value);
+            const numCourts = parseInt(document.getElementById('num-courts').value);
+            const date = document.getElementById('tournament-date').value;
+            
+            const courts = [];
+            for (let i = 1; i <= numCourts; i++) {
+                courts.push(document.getElementById(`court-${i}`).value.trim());
+            }
+            
+            const teams = [];
+            for (let t = 1; t <= numTeams; t++) {
+                const team = {
+                    name: document.getElementById(`team-${t}-name`).value.trim(),
+                    players: []
+                };
+                
+                for (let p = 1; p <= playersPerTeam; p++) {
+                    team.players.push(document.getElementById(`team-${t}-player-${p}`).value.trim());
                 }
-                localStorage.removeItem('badminton');
-                document.getElementById('results').style.display = 'none';
+                
+                teams.push(team);
+            }
+            
+            currentConfig = { date, courts, teams, numTeams, playersPerTeam };
+            
+            let scheduleHTML;
+            if (numTeams === 4 && playersPerTeam === 3) {
+                scheduleHTML = generate12PlayerSchedule(currentConfig);
+            } else if (numTeams === 3 && playersPerTeam === 6) {
+                scheduleHTML = generate18PlayerSchedule(currentConfig);
+            } else {
+                alert('This configuration is not yet supported. Please use 4 teams of 3 or 3 teams of 6.');
+                return;
+            }
+            
+            document.getElementById('generated-schedule').innerHTML = scheduleHTML;
+            document.getElementById('form-section').style.display = 'none';
+            document.getElementById('schedule-output').style.display = 'block';
+            document.getElementById('results-section').style.display = 'none';
+            
+            addScoreListeners();
+        }
+        
+        function generate12PlayerSchedule(config) {
+            const { date, courts, teams } = config;
+            gameData = [];
+            
+            const rivalries = [];
+            for (let i = 0; i < teams.length; i++) {
+                for (let j = i + 1; j < teams.length; j++) {
+                    rivalries.push([i, j]);
+                }
+            }
+            
+            let gameNum = 1;
+            let html = `
+                <div class="schedule-header">
+                    <h2>🏸 Badminton Tournament</h2>
+                    <p>${new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                </div>
+                
+                <div class="teams-legend">
+                    <h4>Team Rosters</h4>
+                    <div class="team-list">
+                        ${teams.map(t => `
+                            <div class="team-item">
+                                <div class="team-name">${t.name}</div>
+                                <div class="players">${t.players.join(', ')}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            
+            const gamesPerRound = courts.length;
+            const totalGames = rivalries.length * 3;
+            const numRounds = Math.ceil(totalGames / gamesPerRound);
+            
+            let allGames = [];
+            rivalries.forEach(([t1, t2]) => {
+                const team1 = teams[t1];
+                const team2 = teams[t2];
+                
+                const pairs1 = [
+                    [team1.players[0], team1.players[1]],
+                    [team1.players[0], team1.players[2]],
+                    [team1.players[1], team1.players[2]]
+                ];
+                
+                const pairs2 = [
+                    [team2.players[0], team2.players[1]],
+                    [team2.players[0], team2.players[2]],
+                    [team2.players[1], team2.players[2]]
+                ];
+                
+                for (let i = 0; i < 3; i++) {
+                    allGames.push({
+                        team1Name: team1.name,
+                        team2Name: team2.name,
+                        team1Pair: pairs1[i],
+                        team2Pair: pairs2[i]
+                    });
+                }
+            });
+            
+            for (let round = 0; round < numRounds; round++) {
+                html += `<div class="round-section">
+                    <div class="round-title">Round ${round + 1}</div>
+                    <div class="courts-grid">`;
+                
+                for (let court = 0; court < gamesPerRound; court++) {
+                    const gameIndex = round * gamesPerRound + court;
+                    if (gameIndex >= allGames.length) break;
+                    
+                    const game = allGames[gameIndex];
+                    const courtName = courts[court % courts.length];
+                    
+                    gameData.push(game);
+                    
+                    html += `
+                        <div class="court-card">
+                            <div class="court-header">${courtName}: ${game.team1Name} vs ${game.team2Name}</div>
+                            <div class="game-row">
+                                <div class="game-number">Game ${gameNum}</div>
+                                <div class="matchup">
+                                    ${game.team1Pair[0]} & ${game.team1Pair[1]}
+                                    <span class="vs">vs</span>
+                                    ${game.team2Pair[0]} & ${game.team2Pair[1]}
+                                </div>
+                                <div class="score-inputs">
+                                    <span>Score:</span>
+                                    <input type="number" id="game-${gameNum}-s1" min="0" max="99" placeholder="0">
+                                    <span>-</span>
+                                    <input type="number" id="game-${gameNum}-s2" min="0" max="99" placeholder="0">
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    gameNum++;
+                }
+                
+                html += `</div></div>`;
+            }
+            
+            return html;
+        }
+        
+        function generate18PlayerSchedule(config) {
+            const { date, courts, teams } = config;
+            gameData = [];
+            
+            let gameNum = 1;
+            let html = `
+                <div class="schedule-header">
+                    <h2>🏸 Badminton Tournament</h2>
+                    <p>${new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                </div>
+                
+                <div class="teams-legend">
+                    <h4>Team Rosters</h4>
+                    <div class="team-list">
+                        ${teams.map(t => `
+                            <div class="team-item">
+                                <div class="team-name">${t.name}</div>
+                                <div class="players">${t.players.join(', ')}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            
+            const pairingSchedule = [
+                { rivalry: 0, t1: [0,1], t2: [0,1] },  // Game 1
+                { rivalry: 1, t1: [2,3], t2: [2,3] },  // Game 2
+                { rivalry: 2, t1: [4,3], t2: [4,5] },  // Game 3
+                { rivalry: 1, t1: [0,1], t2: [4,0] },  // Game 4
+                { rivalry: 0, t1: [4,5], t2: [4,5] },  // Game 5
+                { rivalry: 2, t1: [2,3], t2: [1,2] },  // Game 6
+                { rivalry: 0, t1: [2,5], t2: [2,1] },  // Game 7
+                { rivalry: 1, t1: [4,3], t2: [3,1] },  // Game 8
+                { rivalry: 2, t1: [0,5], t2: [0,5] },  // Game 9
+                { rivalry: 1, t1: [2,3], t2: [2,5] },  // Game 10
+                { rivalry: 2, t1: [1,3], t2: [4,3] },  // Game 11
+                { rivalry: 0, t1: [0,1], t2: [0,4] },  // Game 12
+                { rivalry: 0, t1: [5,4], t2: [5,3] },  // Game 13
+                { rivalry: 1, t1: [0,1], t2: [4,0] },  // Game 14
+                { rivalry: 2, t1: [2,4], t2: [1,2] },  // Game 15
+                { rivalry: 0, t1: [3,5], t2: [2,0] },  // Game 16
+                { rivalry: 1, t1: [2,4], t2: [3,5] },  // Game 17
+                { rivalry: 2, t1: [1,5], t2: [1,0] },  // Game 18
+                { rivalry: 0, t1: [0,1], t2: [0,4] },  // Game 19
+                { rivalry: 1, t1: [3,2], t2: [3,4] },  // Game 20
+                { rivalry: 2, t1: [1,3], t2: [5,2] },  // Game 21
+                { rivalry: 0, t1: [0,1], t2: [4,2] },  // Game 22
+                { rivalry: 1, t1: [5,4], t2: [4,1] },  // Game 23
+                { rivalry: 2, t1: [5,3], t2: [0,2] },  // Game 24
+                { rivalry: 2, t1: [3,1], t2: [5,0] },  // Game 25
+                { rivalry: 0, t1: [3,2], t2: [1,2] },  // Game 26
+                { rivalry: 1, t1: [5,4], t2: [0,5] },  // Game 27
+            ];
+            
+            const rivalries = [
+                [0, 1],
+                [0, 2],
+                [1, 2]
+            ];
+            
+            let allGames = [];
+            
+            pairingSchedule.forEach(schedule => {
+                const [t1Idx, t2Idx] = rivalries[schedule.rivalry];
+                const team1 = teams[t1Idx];
+                const team2 = teams[t2Idx];
+                
+                allGames.push({
+                    team1Name: team1.name,
+                    team2Name: team2.name,
+                    team1Pair: [team1.players[schedule.t1[0]], team1.players[schedule.t1[1]]],
+                    team2Pair: [team2.players[schedule.t2[0]], team2.players[schedule.t2[1]]]
+                });
+            });
+            
+            const gamesPerRound = 3;
+            const numRounds = 9;
+            
+            for (let round = 0; round < numRounds; round++) {
+                html += `<div class="round-section">
+                    <div class="round-title">Round ${round + 1}</div>
+                    <div class="courts-grid">`;
+                
+                for (let court = 0; court < gamesPerRound; court++) {
+                    const gameIndex = round * gamesPerRound + court;
+                    if (gameIndex >= allGames.length) break;
+                    
+                    const game = allGames[gameIndex];
+                    const courtName = courts[court % courts.length];
+                    
+                    gameData.push(game);
+                    
+                    html += `
+                        <div class="court-card">
+                            <div class="court-header">${courtName}: ${game.team1Name} vs ${game.team2Name}</div>
+                            <div class="game-row">
+                                <div class="game-number">Game ${gameNum}</div>
+                                <div class="matchup">
+                                    ${game.team1Pair[0]} & ${game.team1Pair[1]}
+                                    <span class="vs">vs</span>
+                                    ${game.team2Pair[0]} & ${game.team2Pair[1]}
+                                </div>
+                                <div class="score-inputs">
+                                    <span>Score:</span>
+                                    <input type="number" id="game-${gameNum}-s1" min="0" max="99" placeholder="0">
+                                    <span>-</span>
+                                    <input type="number" id="game-${gameNum}-s2" min="0" max="99" placeholder="0">
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    gameNum++;
+                }
+                
+                html += `</div></div>`;
+            }
+            
+            return html;
+        }
+        
+        function addScoreListeners() {
+            for (let i = 1; i <= gameData.length; i++) {
+                const s1 = document.getElementById(`game-${i}-s1`);
+                const s2 = document.getElementById(`game-${i}-s2`);
+                if (s1 && s2) {
+                    s1.addEventListener('input', () => {
+                        s1.style.background = s1.value ? '#e8f5e9' : '';
+                    });
+                    s2.addEventListener('input', () => {
+                        s2.style.background = s2.value ? '#e8f5e9' : '';
+                    });
+                }
             }
         }
         
@@ -452,159 +1074,191 @@
             const pairStats = {};
             const playerStats = {};
             
-            scheduleData.teams.forEach(t => {
-                teamStats[t.name] = {wins:0, losses:0, pf:0, pa:0};
-                t.players.forEach(p => {
-                    playerStats[p] = {games:0, wins:0, losses:0, team: t.name};
+            currentConfig.teams.forEach(team => {
+                teamStats[team.name] = { wins: 0, losses: 0, pf: 0, pa: 0 };
+                team.players.forEach(player => {
+                    playerStats[player] = { games: 0, wins: 0, losses: 0, team: team.name };
                 });
             });
             
-            let count = 0;
+            let gamesPlayed = 0;
+            
             for (let i = 1; i <= gameData.length; i++) {
-                const s1 = document.getElementById(`g${i}s1`);
-                const s2 = document.getElementById(`g${i}s2`);
+                const s1 = document.getElementById(`game-${i}-s1`);
+                const s2 = document.getElementById(`game-${i}-s2`);
+                
                 if (s1?.value && s2?.value) {
-                    count++;
-                    const sc1 = parseInt(s1.value);
-                    const sc2 = parseInt(s2.value);
-                    const g = gameData[i-1];
+                    gamesPlayed++;
+                    const score1 = parseInt(s1.value);
+                    const score2 = parseInt(s2.value);
+                    const game = gameData[i - 1];
                     
-                    if (sc1 > sc2) {
-                        teamStats[g.team1Name].wins++;
-                        teamStats[g.team2Name].losses++;
+                    const team1Won = score1 > score2;
+                    
+                    if (team1Won) {
+                        teamStats[game.team1Name].wins++;
+                        teamStats[game.team2Name].losses++;
                     } else {
-                        teamStats[g.team2Name].wins++;
-                        teamStats[g.team1Name].losses++;
+                        teamStats[game.team2Name].wins++;
+                        teamStats[game.team1Name].losses++;
                     }
                     
-                    teamStats[g.team1Name].pf += sc1;
-                    teamStats[g.team1Name].pa += sc2;
-                    teamStats[g.team2Name].pf += sc2;
-                    teamStats[g.team2Name].pa += sc1;
+                    teamStats[game.team1Name].pf += score1;
+                    teamStats[game.team1Name].pa += score2;
+                    teamStats[game.team2Name].pf += score2;
+                    teamStats[game.team2Name].pa += score1;
                     
-                    const pair1 = `${g.team1Pair[0]} & ${g.team1Pair[1]}`;
-                    const pair2 = `${g.team2Pair[0]} & ${g.team2Pair[1]}`;
-                    
-                    if (!pairStats[pair1]) pairStats[pair1] = {wins:0, losses:0, pf:0, pa:0, team: g.team1Name};
-                    if (!pairStats[pair2]) pairStats[pair2] = {wins:0, losses:0, pf:0, pa:0, team: g.team2Name};
-                    
-                    g.team1Pair.forEach(p => {
-                        playerStats[p].games++;
-                        if (sc1 > sc2) playerStats[p].wins++;
-                        else playerStats[p].losses++;
-                    });
-                    g.team2Pair.forEach(p => {
-                        playerStats[p].games++;
-                        if (sc2 > sc1) playerStats[p].wins++;
-                        else playerStats[p].losses++;
+                    game.team1Pair.forEach(player => {
+                        playerStats[player].games++;
+                        if (team1Won) playerStats[player].wins++;
+                        else playerStats[player].losses++;
                     });
                     
-                    if (sc1 > sc2) {
+                    game.team2Pair.forEach(player => {
+                        playerStats[player].games++;
+                        if (!team1Won) playerStats[player].wins++;
+                        else playerStats[player].losses++;
+                    });
+                    
+                    const pair1 = `${game.team1Pair[0]} & ${game.team1Pair[1]}`;
+                    const pair2 = `${game.team2Pair[0]} & ${game.team2Pair[1]}`;
+                    
+                    if (!pairStats[pair1]) pairStats[pair1] = { wins: 0, losses: 0, pf: 0, pa: 0, team: game.team1Name };
+                    if (!pairStats[pair2]) pairStats[pair2] = { wins: 0, losses: 0, pf: 0, pa: 0, team: game.team2Name };
+                    
+                    if (team1Won) {
                         pairStats[pair1].wins++;
-                        pairStats[pair1].pf += sc1;
-                        pairStats[pair1].pa += sc2;
                         pairStats[pair2].losses++;
-                        pairStats[pair2].pf += sc2;
-                        pairStats[pair2].pa += sc1;
                     } else {
                         pairStats[pair2].wins++;
-                        pairStats[pair2].pf += sc2;
-                        pairStats[pair2].pa += sc1;
                         pairStats[pair1].losses++;
-                        pairStats[pair1].pf += sc1;
-                        pairStats[pair1].pa += sc2;
                     }
+                    
+                    pairStats[pair1].pf += score1;
+                    pairStats[pair1].pa += score2;
+                    pairStats[pair2].pf += score2;
+                    pairStats[pair2].pa += score1;
                 }
             }
             
-            if (count === 0) {
-                alert('Enter scores first!');
+            if (gamesPlayed === 0) {
+                alert('Please enter scores for at least one game!');
                 return;
             }
             
-            const results = Object.entries(teamStats)
-                .map(([name, s]) => ({name, ...s, diff: s.pf - s.pa}))
-                .sort((a,b) => b.wins - a.wins || b.diff - a.diff);
+            const teamResults = Object.entries(teamStats)
+                .map(([name, stats]) => ({ name, ...stats, diff: stats.pf - stats.pa }))
+                .sort((a, b) => b.wins - a.wins || b.diff - a.diff);
             
             const pairResults = Object.entries(pairStats)
-                .map(([pair, s]) => ({pair, ...s, diff: s.pf - s.pa}))
-                .sort((a,b) => b.wins - a.wins || b.diff - a.diff);
+                .map(([pair, stats]) => ({ pair, ...stats, diff: stats.pf - stats.pa }))
+                .sort((a, b) => b.wins - a.wins || b.diff - a.diff);
             
             const playerResults = Object.entries(playerStats)
-                .map(([name, s]) => ({name, ...s}))
-                .sort((a,b) => b.games - a.games || b.wins - a.wins);
+                .map(([name, stats]) => ({ name, ...stats }))
+                .sort((a, b) => b.games - a.games || b.wins - a.wins);
             
-            const bestPairs = pairResults.slice(0, 3);
-            const worstPairs = pairResults.slice(-3).reverse();
-            const bestDefense = pairResults.filter(p => p.pa > 0).sort((a,b) => a.pa - b.pa).slice(0, 3);
+            let html = `
+                <div class="result-item">
+                    <strong>📊 Games Completed:</strong> ${gamesPlayed} of ${gameData.length}
+                </div>
+                
+                <div class="result-item">
+                    <strong>🏆 Current Leader:</strong> ${teamResults[0].name} 
+                    (${teamResults[0].wins}W-${teamResults[0].losses}L, ${teamResults[0].diff > 0 ? '+' : ''}${teamResults[0].diff} differential)
+                </div>
+                
+                <div class="result-item">
+                    <strong>📊 Team Standings:</strong><br>
+                    ${teamResults.map((t, i) => 
+                        `${i + 1}. ${t.name}: ${t.wins}W-${t.losses}L, ${t.diff > 0 ? '+' : ''}${t.diff} diff (${t.pf} PF, ${t.pa} PA)`
+                    ).join('<br>')}
+                </div>
+                
+                <div class="result-item">
+                    <strong>👤 Player Statistics:</strong><br>
+                    ${playerResults.map(p => 
+                        `${p.name} (${p.team}): ${p.games} games, ${p.wins}W-${p.losses}L`
+                    ).join('<br>')}
+                </div>
+                
+                <div class="result-item">
+                    <strong>⭐ Top Pairs:</strong><br>
+                    ${pairResults.slice(0, 3).map((p, i) => 
+                        `${i + 1}. ${p.pair} (${p.team}): ${p.wins}W-${p.losses}L, ${p.diff > 0 ? '+' : ''}${p.diff} diff`
+                    ).join('<br>')}
+                </div>
+            `;
             
-            let html = `<h3>🏆 Results</h3>
-                
-                <div class="result-box">
-                    <strong>📊 Games:</strong> ${count} of ${gameData.length}
-                </div>
-                
-                <div class="result-box">
-                    <strong>🏆 Leader:</strong> ${results[0].name} (${results[0].wins}W-${results[0].losses}L)
-                </div>
-                
-                <div class="result-box">
-                    <strong>📊 Standings:</strong>
-                    <ol style="margin:8px 0 0 20px;">
-                        ${results.map(r => 
-                            `<li>${r.name}: ${r.wins}W-${r.losses}L, ${r.diff>0?'+':''}${r.diff} diff</li>`
-                        ).join('')}
-                    </ol>
-                </div>
-                
-                <div class="result-box">
-                    <strong>👤 Player Game Count:</strong>
-                    <div style="margin:8px 0 0 0;font-size:11px;">
-                        ${playerResults.map(p => 
-                            `<div style="padding:2px 0;">${p.name} (${p.team}): ${p.games} games (${p.wins}W-${p.losses}L)</div>`
-                        ).join('')}
-                    </div>
-                </div>
-                
-                <div class="result-box best-performer">
-                    <strong>⭐ Best Pairs:</strong>
-                    <ol style="margin:8px 0 0 20px;">
-                        ${bestPairs.map(p => 
-                            `<li>${p.pair} (${p.team}): ${p.wins}W-${p.losses}L</li>`
-                        ).join('')}
-                    </ol>
-                </div>
-                
-                <div class="result-box worst-performer">
-                    <strong>⚠️ Struggling Pairs:</strong>
-                    <ol style="margin:8px 0 0 20px;">
-                        ${worstPairs.map(p => 
-                            `<li>${p.pair} (${p.team}): ${p.wins}W-${p.losses}L</li>`
-                        ).join('')}
-                    </ol>
-                </div>
-                
-                <div class="result-box">
-                    <strong>🎯 Best Defense:</strong>
-                    <ol style="margin:8px 0 0 20px;">
-                        ${bestDefense.map(p => 
-                            `<li>${p.pair} (${p.team}): ${p.pa} pts against</li>`
-                        ).join('')}
-                    </ol>
-                </div>`;
-            
-            document.getElementById('results').innerHTML = html;
-            document.getElementById('results').style.display = 'block';
+            document.getElementById('results-content').innerHTML = html;
+            document.getElementById('results-section').style.display = 'block';
+            document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
         }
         
-        // Build schedule on load
-        buildSchedule();
+        function clearScores() {
+            if (confirm('Clear all scores?')) {
+                for (let i = 1; i <= gameData.length; i++) {
+                    const s1 = document.getElementById(`game-${i}-s1`);
+                    const s2 = document.getElementById(`game-${i}-s2`);
+                    if (s1 && s2) {
+                        s1.value = '';
+                        s2.value = '';
+                        s1.style.background = '';
+                        s2.style.background = '';
+                    }
+                }
+                document.getElementById('results-section').style.display = 'none';
+            }
+        }
         
-        // Auto-save every 10 seconds
-        setInterval(saveScores, 10000);
-        window.onbeforeunload = saveScores;
+        function showForm() {
+            document.getElementById('form-section').style.display = 'block';
+            document.getElementById('schedule-output').style.display = 'none';
+        }
+        
+        function downloadSchedule() {
+            const scheduleContent = document.getElementById('generated-schedule').innerHTML;
+            
+            const html = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Badminton Tournament</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 10px; margin: 0; }
+        .schedule-header { display: none; }
+        .teams-legend { background: #f5f5f5; padding: 5px; margin-bottom: 8px; border-radius: 5px; font-size: 10px; }
+        .team-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+        .team-item { background: white; padding: 4px 6px; border-left: 3px solid #667eea; border-radius: 4px; }
+        .team-name { font-weight: bold; font-size: 11px; }
+        .players { font-size: 9px; color: #666; }
+        .round-section { margin-bottom: 8px; padding: 6px; background: #f8f9fa; border-radius: 8px; page-break-inside: avoid; }
+        .round-title { font-weight: bold; margin-bottom: 5px; color: #667eea; font-size: 11px; padding-bottom: 3px; border-bottom: 2px solid #ddd; }
+        .courts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+        .court-card { background: white; padding: 5px; border: 1px solid #ddd; border-radius: 6px; }
+        .court-header { font-weight: bold; margin-bottom: 4px; border-bottom: 2px solid #667eea; padding-bottom: 2px; font-size: 9px; }
+        .game-row { padding: 4px; margin-bottom: 3px; border: 1px solid #e0e0e0; border-radius: 6px; }
+        .game-number { font-weight: bold; color: #667eea; margin-bottom: 2px; font-size: 8px; }
+        .matchup { margin-bottom: 4px; font-size: 12px; font-weight: 600; line-height: 1.2; }
+        .vs { font-weight: bold; margin: 0 6px; }
+        .score-inputs { display: flex; gap: 4px; align-items: center; font-size: 9px; }
+        .score-inputs input { width: 35px; padding: 2px; text-align: center; border: 2px solid #ddd; border-radius: 4px; font-size: 9px; }
+        .round-section:nth-child(7) { page-break-before: always; }
+    </style>
+</head>
+<body>
+    ${scheduleContent}
+</body>
+</html>`;
+
+            const blob = new Blob([html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `badminton-tournament-${currentConfig.date}.html`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
     </script>
 </body>
 </html>
-
-
